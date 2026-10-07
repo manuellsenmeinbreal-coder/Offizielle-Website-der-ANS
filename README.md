@@ -2,120 +2,120 @@
 
 Offizielle Website der Roleplay-Partei **ANS** im Spiel **BwRP**: Startseite, Parteiprogramm (live editierbar), Team, Beitrittsformular, Discord-Login und ein geschütztes Admin-Panel.
 
+Läuft **kostenlos auf Cloudflare** (Workers + D1-Datenbank). Du brauchst keinen eigenen Server.
+
 ## Ordnerstruktur
 
 ```
 Offizielle Website der ANS/
-├── server.js                 # Backend: Discord-Login, Admin-Prüfung, API, Live-Updates
-├── package.json              # Abhängigkeiten (express, express-session, dotenv)
-├── .env.example              # Vorlage für deine geheimen Zugangsdaten → als .env kopieren
+├── wrangler.jsonc            # Cloudflare-Konfiguration (Database ID hier eintragen!)
+├── package.json              # Abhängigkeiten (nur "wrangler")
+├── .dev.vars.example         # Vorlage für lokale Zugangsdaten → als .dev.vars kopieren
 ├── .gitignore
 ├── README.md                 # diese Anleitung
-├── content/
-│   └── programm-standard.md  # Start-Text des Parteiprogramms (nur beim allerersten Start verwendet)
-├── data/
-│   └── db.json               # Datenbank (Programm + Anträge) – wird automatisch erstellt
-└── public/                   # Alles, was der Browser lädt
-    ├── index.html            # Die komplette Seite (Single-Page-App)
-    ├── css/style.css         # Design
+├── src/
+│   ├── worker.js             # Backend: Discord-Login, Admin-Prüfung, Datenbank
+│   └── default-program.js    # Start-Text des Parteiprogramms (nur beim allerersten Start)
+└── public/                   # Die eigentliche Website
+    ├── index.html
+    ├── _headers              # Sicherheits-Header
+    ├── css/style.css
     ├── js/config.js          # ← Footer-Links (Discord, Community, Spiel) hier eintragen
-    ├── js/app.js             # Frontend-Logik
-    └── assets/
-        ├── logo.jpg          # ANS-Logo
-        └── vorstand.png      # Bild von Vorsitz & Stellv. Vorsitz
+    ├── js/app.js
+    └── assets/logo.jpg, vorstand.png
 ```
 
 ## So funktioniert es
 
 | Funktion | Umsetzung |
 |---|---|
-| Login | Discord OAuth2 (Scope `identify`). Der Server tauscht den Code gegen ein Token und liest die Discord-ID aus. |
-| Admin-Prüfung | **Ausschließlich auf dem Server.** Nur die IDs `1367038661451055117` und `1413531547876851837` (fest in `server.js` → `ADMIN_IDS`) dürfen Anträge lesen und das Programm ändern. Wer im Browser tricksen will, bekommt vom Server trotzdem nur „Kein Zugriff“. |
-| Beitrittsanträge | Nur mit Discord-Login möglich und mit dem Discord-Konto verknüpft. Pro Person ist nur ein offener Antrag erlaubt. Admins können Anträge annehmen, ablehnen, wieder öffnen und löschen. Antragsteller sehen ihren Status auf der Beitrittsseite. |
-| Parteiprogramm in Echtzeit | Admins bearbeiten das Programm mit Live-Vorschau. Beim Speichern landet es in `data/db.json` und wird per *Server-Sent Events* sofort an alle offenen Browser geschickt, ohne Neuladen. Wenn zwei Admins gleichzeitig bearbeiten, gibt es eine Konfliktwarnung. |
+| Login | Discord OAuth2 (Scope `identify`). Der Login wird in einem **signierten Cookie** gespeichert, das niemand fälschen kann. |
+| Admin-Prüfung | **Ausschließlich auf dem Server.** Nur die IDs `1367038661451055117` und `1413531547876851837` (in `src/worker.js` → `ADMIN_IDS`) dürfen Anträge lesen und das Programm ändern. |
+| Beitrittsanträge | Werden in der D1-Datenbank gespeichert und sind mit dem Discord-Konto verknüpft. Pro Person ist nur ein offener Antrag erlaubt. |
+| Parteiprogramm | Admins bearbeiten es mit Live-Vorschau. Alle Besucher sehen die Änderung automatisch innerhalb von ca. 15 Sekunden, ohne die Seite neu zu laden. |
 
-> Warum nicht Firebase? Firebase Auth unterstützt Discord nicht direkt. Man bräuchte trotzdem einen eigenen Server für den Login. Ein einziger Node.js-Server ist deshalb einfacher, kostenlos und hält alles an einem Ort.
+> **GitHub Pages funktioniert nicht.** Es kann nur Dateien anzeigen und kein Backend ausführen. GitHub dient hier nur als Speicherort für den Code. Cloudflare holt sich den Code automatisch von dort.
 
 ---
 
-## Schritt-für-Schritt-Einrichtung
+## Einrichtung Schritt für Schritt
 
-### 1. Node.js installieren
-Lade Node.js (LTS, mindestens Version 18) von https://nodejs.org herunter und installiere es. Prüfe danach im Terminal:
-```
-node -v
-```
+### Schritt 1: Discord Application vorbereiten
+1. https://discord.com/developers/applications öffnen und deine App auswählen.
+2. **OAuth2** öffnen, bei **Client Secret** auf **Reset Secret** klicken und das neue Secret kopieren.
+   ⚠️ Das Secret gehört **niemals** in eine Datei, die auf GitHub landet.
+3. Die **Client ID** steht bereits in `wrangler.jsonc` unter `DISCORD_CLIENT_ID`. Die Client ID ist öffentlich und darf dort stehen.
 
-### 2. Discord Application erstellen
-1. Öffne https://discord.com/developers/applications und melde dich an.
-2. Klicke auf **New Application**, gib als Namen z. B. `ANS Website` ein und bestätige.
-3. Optional unter **General Information**: Lade das ANS-Logo als App-Icon hoch. Das Icon erscheint im Discord-Login-Fenster.
-4. Links im Menü auf **OAuth2** klicken.
-5. Kopiere die **Client ID**.
-6. Klicke bei **Client Secret** auf **Reset Secret** und kopiere das Secret. **Gib es niemals weiter.**
-7. Klicke unter **Redirects** auf **Add Redirect** und trage exakt ein:
-   - zum lokalen Testen: `http://localhost:3000/auth/discord/callback`
-   - für die Online-Version zusätzlich: `https://DEINE-DOMAIN/auth/discord/callback`
-8. Klicke auf **Save Changes**.
+### Schritt 2: Cloudflare-Account
+Unter https://dash.cloudflare.com/sign-up kostenlos registrieren. Eine Kreditkarte ist nicht nötig.
 
-> Ein Bot ist **nicht** nötig. Die Seite fragt nur den Scope `identify` ab, also Name, Avatar und ID.
+### Schritt 3: Datenbank anlegen
+1. Im Cloudflare-Dashboard links **Storage & Databases** und dann **D1 SQL Database** öffnen.
+2. Auf **Create Database** klicken, als Namen `ans-db` eingeben und auf **Create** klicken.
+3. Die angezeigte **Database ID** kopieren. Sie sieht so aus: `a1b2c3d4-...`
+4. In `wrangler.jsonc` die Nullen bei `"database_id"` durch diese ID ersetzen.
 
-### 3. `.env` anlegen
-1. Kopiere `.env.example` und nenne die Kopie `.env`.
-2. Trage die Werte ein:
-   ```
-   PORT=3000
-   BASE_URL=http://localhost:3000
-   DISCORD_CLIENT_ID=deine_client_id
-   DISCORD_CLIENT_SECRET=dein_client_secret
-   SESSION_SECRET=langer_zufaelliger_text
-   ```
-3. Einen sicheren `SESSION_SECRET` erzeugst du mit:
-   ```
-   node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
-   ```
+Die Tabellen legt die Website beim ersten Aufruf selbst an. Du musst dafür nichts eintippen.
 
-**Wichtig:** `BASE_URL` muss genau die Adresse sein, die du im Browser aufrufst, also nicht `127.0.0.1`, wenn dort `localhost` steht. `BASE_URL + /auth/discord/callback` muss außerdem exakt so im Discord Developer Portal eingetragen sein.
+### Schritt 4: Code auf GitHub hochladen
+In VS Code unter *Quellcodeverwaltung* alles committen und **pushen** (Synchronisieren).
 
-### 4. Footer-Links eintragen
-Öffne `public/js/config.js` und trage deinen Discord-Einladungslink, den Link zur BwRP Community und den Link zum Spiel ein.
+### Schritt 5: Cloudflare mit GitHub verbinden
+1. Im Dashboard **Workers & Pages** öffnen und auf **Create application** klicken.
+2. **Import a repository** wählen und GitHub verbinden. Dann das Repository `Offizielle-Website-der-ANS` auswählen.
+3. Bei **Project name** genau `ans-website` eintragen. Der Name muss mit `"name"` in `wrangler.jsonc` übereinstimmen.
+4. **Build command:** leer lassen. **Deploy command:** `npx wrangler deploy`
+5. Auf **Deploy** klicken. Der erste Aufbau dauert etwa 1–2 Minuten.
 
-### 5. Starten
-Im Projektordner:
+Ab jetzt wird die Website bei **jedem Push auf GitHub automatisch aktualisiert**.
+
+### Schritt 6: Geheime Zugangsdaten bei Cloudflare hinterlegen
+1. Im Dashboard **Workers & Pages** öffnen, dann **ans-website**, dann **Settings** und dort **Variables and Secrets**.
+2. Auf **Add** klicken, als Typ **Secret** wählen und folgende zwei Einträge anlegen:
+
+   | Name | Wert |
+   |---|---|
+   | `DISCORD_CLIENT_SECRET` | das neue Secret aus Schritt 1 |
+   | `SESSION_SECRET` | ein langer Zufallstext, erzeugt mit: `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` |
+3. Auf **Deploy** klicken.
+
+### Schritt 7: Redirect bei Discord eintragen
+1. Deine Website-Adresse findest du bei Cloudflare unter **ans-website**. Sie sieht so aus:
+   `https://ans-website.DEIN-NAME.workers.dev`
+2. Im Discord Developer Portal unter **OAuth2** → **Redirects** genau diese Adresse eintragen:
+   `https://ans-website.DEIN-NAME.workers.dev/auth/discord/callback`
+3. Auf **Save Changes** klicken.
+
+### Schritt 8: GitHub Pages abschalten
+Auf GitHub im Repository **Settings** → **Pages** öffnen und die Veröffentlichung deaktivieren (Source: *None* / *Unpublish*). So gibt es keine zweite, kaputte Version der Seite mehr.
+
+### Schritt 9: Testen
+Die Website öffnen und oben rechts auf **Mit Discord anmelden** klicken. Als Admin erscheint danach der rote Menüpunkt **Verwaltung**.
+
+---
+
+## Lokal testen (optional)
+
 ```
 npm install
-npm start
+copy .dev.vars.example .dev.vars     # Werte eintragen
+npm run dev
 ```
-Öffne dann http://localhost:3000.
+Danach http://localhost:8787 öffnen. Für den Login muss im Discord Developer Portal zusätzlich der Redirect `http://localhost:8787/auth/discord/callback` eingetragen sein. Lokal wird eine eigene Test-Datenbank verwendet, Online-Daten werden dabei nicht verändert.
 
-### 6. Admin-Panel testen
-1. Oben rechts auf **Mit Discord anmelden** klicken und bei Discord autorisieren.
-2. Bist du mit einer der beiden Admin-IDs angemeldet, erscheinen der rote Menüpunkt **Verwaltung** und im Benutzermenü der Eintrag **Verwaltung (Admin-Panel)**. Alle anderen Nutzer sehen davon nichts.
-3. Im Reiter **Parteiprogramm bearbeiten** den Text ändern und **Speichern & veröffentlichen** klicken (oder `Strg + S`). Öffne die Seite parallel in einem zweiten Fenster: Das Programm ändert sich dort sofort.
-
----
-
-## Online stellen (Hosting)
-
-Die Seite braucht einen Host, der dauerhaft einen **Node.js-Prozess** laufen lässt und Dateien speichern kann. Reines Static-Hosting wie GitHub Pages reicht nicht. Geeignet sind:
-
-- **Eigener vServer / Raspberry Pi** mit Node.js und z. B. `pm2` (`npm i -g pm2 && pm2 start server.js --name ans`) hinter Nginx/Caddy mit HTTPS.
-- **Railway, Render o. Ä.**: Repository hochladen, die Variablen aus `.env` dort als *Environment Variables* eintragen und für den Ordner `data/` ein persistentes Volume einrichten, damit Anträge Neustarts überleben.
-
-Für die Online-Version:
-1. In der `.env` `BASE_URL=https://deine-domain.de` setzen. Bei `https` werden Login-Cookies automatisch als „secure“ markiert.
-2. Im Discord Developer Portal den Redirect `https://deine-domain.de/auth/discord/callback` hinzufügen.
-3. Den Ordner `data/` regelmäßig sichern, denn dort liegen Programm und Anträge.
+## Eigene Domain (optional)
+Im Dashboard **ans-website** → **Settings** → **Domains & Routes** → **Add** → **Custom domain** öffnen. Danach den neuen Redirect (`https://deine-domain.de/auth/discord/callback`) bei Discord ergänzen.
 
 ## Häufige Probleme
 
 | Problem | Lösung |
 |---|---|
-| Discord meldet „Invalid OAuth2 redirect_uri“ | Der Redirect im Developer Portal stimmt nicht **exakt** mit `BASE_URL/auth/discord/callback` überein (auf http/https, Port und Schrägstriche achten). |
-| Nach dem Login kommt „Anmeldung fehlgeschlagen“ | `DISCORD_CLIENT_SECRET` prüfen. Den genauen Grund zeigt das Server-Terminal an. |
-| „Ungültige Herkunft der Anfrage“ beim Speichern | Die Seite wird unter einer anderen Adresse aufgerufen als in `BASE_URL` angegeben. |
-| Nach einem Server-Neustart ist man ausgeloggt | Das ist normal, Logins werden im Arbeitsspeicher gehalten. Einfach neu anmelden. |
-| Programm auf den Ursprungstext zurücksetzen | Server stoppen, in `data/db.json` den Block `program` löschen oder die ganze Datei löschen (**Achtung: dann sind auch alle Anträge weg**) und neu starten. |
+| Discord meldet „Invalid OAuth2 redirect_uri“ | Der Redirect bei Discord stimmt nicht **exakt** mit der Adresse überein, unter der du die Seite aufrufst, plus `/auth/discord/callback`. |
+| „Die Website ist noch nicht vollständig eingerichtet. Es fehlt: …“ | Die genannten Secrets fehlen (Schritt 6) oder die Database ID stimmt nicht (Schritt 3). |
+| Deploy schlägt fehl mit Fehler zur Datenbank | Die `database_id` in `wrangler.jsonc` ist noch nicht eingetragen oder falsch. |
+| Deploy schlägt fehl wegen des Namens | Der Projektname bei Cloudflare muss `ans-website` lauten, genau wie in `wrangler.jsonc`. |
+| „Anmeldung fehlgeschlagen“ | `DISCORD_CLIENT_SECRET` prüfen. Die genaue Ursache steht bei Cloudflare unter **ans-website** → **Logs**. |
+| Alle sind plötzlich ausgeloggt | Das passiert, wenn `SESSION_SECRET` geändert wurde. Einfach neu anmelden. |
 
 ## Weitere Admins hinzufügen
-In `server.js` ganz oben die Discord-ID in `ADMIN_IDS` ergänzen und den Server neu starten. Die eigene Discord-ID findest du so: Discord → Einstellungen → Erweitert → **Entwicklermodus** aktivieren, dann Rechtsklick auf deinen Namen → **Benutzer-ID kopieren**.
+In `src/worker.js` ganz oben die Discord-ID in `ADMIN_IDS` ergänzen und pushen. Die eigene Discord-ID findest du so: Discord → Einstellungen → Erweitert → **Entwicklermodus** aktivieren, dann Rechtsklick auf deinen Namen → **Benutzer-ID kopieren**.

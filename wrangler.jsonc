@@ -1,0 +1,30 @@
+// Cloudflare-Konfiguration der ANS-Website
+{
+  // Muss genau dem Namen des Workers im Cloudflare-Dashboard entsprechen
+  "name": "ans-website",
+  "main": "src/worker.js",
+  "compatibility_date": "2025-09-01",
+
+  // Die eigentliche Website (HTML, CSS, JS, Bilder)
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+
+  // Datenbank für Parteiprogramm und Beitrittsanträge
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ans-db",
+      // ↓↓↓ HIER die Database ID aus dem Cloudflare-Dashboard eintragen (siehe README, Schritt 3) ↓↓↓
+      "database_id": "555a6c9c-e9d1-414a-a6dd-1741e40e91fb"
+    }
+  ],
+
+  // Öffentliche Einstellungen (die geheimen kommen als "Secret" ins Dashboard, NICHT hierher!)
+  "vars": {
+    "DISCORD_CLIENT_ID": "1514230849556578314"
+  },
+
+  "observability": { "enabled": true }
+}

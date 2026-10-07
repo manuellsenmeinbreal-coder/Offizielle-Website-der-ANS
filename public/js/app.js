@@ -60,6 +60,7 @@
       opts.body = JSON.stringify(opts.body);
     }
     const res = await fetch(path, opts);
+    if (res.status === 204) return null;
     let data = null;
     try { data = await res.json(); } catch { /* keine JSON-Antwort */ }
     if (!res.ok) {
@@ -324,22 +325,35 @@
     syncEditorFromRemote(isUpdate && !ownSave);
   }
 
-  async function loadProgram() {
+  // Prüft regelmäßig auf Änderungen – nur solange der Tab sichtbar ist.
+  const POLL_MS = 15_000;
+  let pollTimer = null;
+  let polling = false;
+
+  async function pollProgram() {
+    clearTimeout(pollTimer);
+    if (polling || document.hidden) return;
+    polling = true;
+    const dot = $('#liveDot');
     try {
-      applyProgram(await api('/api/program'));
+      const since = state.program ? `?since=${encodeURIComponent(state.program.updatedAt)}` : '';
+      const program = await api(`/api/program${since}`);
+      if (program) applyProgram(program);
+      dot.classList.add('on');
+      dot.title = 'Live – Änderungen erscheinen automatisch';
     } catch {
-      $('#programDoc').replaceChildren(h('p', { class: 'muted' }, 'Das Parteiprogramm konnte nicht geladen werden.'));
+      dot.classList.remove('on');
+      dot.title = 'Keine Verbindung – neuer Versuch …';
+      if (!state.program) {
+        $('#programDoc').replaceChildren(h('p', { class: 'muted' }, 'Das Parteiprogramm konnte nicht geladen werden.'));
+      }
+    } finally {
+      polling = false;
     }
+    pollTimer = setTimeout(pollProgram, POLL_MS);
   }
 
-  function connectLive() {
-    if (!('EventSource' in window)) return;
-    const dot = $('#liveDot');
-    const source = new EventSource('/api/program/stream');
-    source.addEventListener('program', (e) => applyProgram(JSON.parse(e.data)));
-    source.addEventListener('open', () => { dot.classList.add('on'); dot.title = 'Live – Änderungen erscheinen sofort'; });
-    source.addEventListener('error', () => { dot.classList.remove('on'); dot.title = 'Live-Verbindung getrennt – neuer Versuch …'; });
-  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) pollProgram(); });
 
   // ---------------------------------------------------------------------------
   // Beitrittsformular
@@ -683,7 +697,7 @@
     renderAuth();
     route();
 
-    loadProgram().then(connectLive);
+    pollProgram();
     await loadMe();
     handleLoginResult();
     route();

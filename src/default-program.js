@@ -1,4 +1,6 @@
-Die Allianz für Nationale Souveränität (ANS) steht für einen handlungsfähigen Staat, der seine Bürgerinnen und Bürger schützt, Leistung anerkennt und Verantwortung übernimmt. Unser Programm ist der Kompass für unsere Arbeit im Bundestag und in der Regierung.
+// Start-Text des Parteiprogramms – wird nur beim allerersten Start in die Datenbank geschrieben.
+// Danach wird das Programm ausschließlich im Admin-Panel bearbeitet.
+export default `Die Allianz für Nationale Souveränität (ANS) steht für einen handlungsfähigen Staat, der seine Bürgerinnen und Bürger schützt, Leistung anerkennt und Verantwortung übernimmt. Unser Programm ist der Kompass für unsere Arbeit im Bundestag und in der Regierung.
 
 # Souveränität und Sicherheit
 Ein Staat, der seine Bürger nicht schützen kann, verliert ihr Vertrauen. Wir stehen für innere und äußere Sicherheit ohne Kompromisse.
@@ -34,3 +36,4 @@ Unsere Gemeinschaft lebt vom Engagement jedes Einzelnen.
 - Faire, sachliche Debatte im Parlament
 
 > Souverän. Verlässlich. Entschlossen. – Das ist unser Versprechen.
+`;

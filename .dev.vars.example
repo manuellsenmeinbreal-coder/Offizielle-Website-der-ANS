@@ -1,0 +1,7 @@
+# NUR für das lokale Testen mit "npm run dev".
+# Kopiere diese Datei nach ".dev.vars" und trage dort deine Werte ein.
+# ACHTUNG: Echte Werte NIE in diese Vorlage schreiben – sie wird mit auf GitHub hochgeladen!
+# Online werden diese Werte im Cloudflare-Dashboard als "Secret" hinterlegt (siehe README).
+
+DISCORD_CLIENT_SECRET=
+SESSION_SECRET=
