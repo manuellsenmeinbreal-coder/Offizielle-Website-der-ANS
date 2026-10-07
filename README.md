@@ -13,14 +13,17 @@ Offizielle Website der ANS/
 ├── .dev.vars.example         # Vorlage für lokale Zugangsdaten → als .dev.vars kopieren
 ├── .gitignore
 ├── README.md                 # diese Anleitung
+├── scripts/
+│   └── bot-aktivieren.mjs    # Einmalig: Discord-Bot freischalten (npm run bot:aktivieren)
 ├── src/
-│   ├── worker.js             # Backend: Discord-Login, Admin-Prüfung, Datenbank
+│   ├── worker.js             # Backend: Discord-Login, Admin-Prüfung, Datenbank, Bot-DMs
 │   └── default-program.js    # Start-Text des Parteiprogramms (nur beim allerersten Start)
 └── public/                   # Die eigentliche Website
     ├── index.html
     ├── _headers              # Sicherheits-Header
     ├── css/style.css
     ├── js/config.js          # ← Footer-Links (Discord, Community, Spiel) hier eintragen
+    ├── js/theme.js           # Hell/Dunkel-Modus
     ├── js/app.js
     └── assets/logo.jpg, vorstand.png
 ```
@@ -31,7 +34,8 @@ Offizielle Website der ANS/
 |---|---|
 | Login | Discord OAuth2 (Scope `identify`). Der Login wird in einem **signierten Cookie** gespeichert, das niemand fälschen kann. |
 | Admin-Prüfung | **Ausschließlich auf dem Server.** Nur die IDs `1367038661451055117` und `1413531547876851837` (in `src/worker.js` → `ADMIN_IDS`) dürfen Anträge lesen und das Programm ändern. |
-| Beitrittsanträge | Werden in der D1-Datenbank gespeichert und sind mit dem Discord-Konto verknüpft. Pro Person ist nur ein offener Antrag erlaubt. |
+| Beitrittsanträge | Werden in der D1-Datenbank gespeichert und sind mit dem Discord-Konto verknüpft. Pro Person ist nur ein offener Antrag erlaubt. Bei Annahme oder Ablehnung bekommt die Person eine **Discord-DM** vom Bot (siehe unten). |
+| Hell/Dunkel | Mit dem Mond-/Sonnen-Symbol oben rechts umschaltbar. Ohne eigene Wahl folgt die Seite der Einstellung des Geräts. |
 | Parteiprogramm | Admins bearbeiten es mit Live-Vorschau. Alle Besucher sehen die Änderung automatisch innerhalb von ca. 15 Sekunden, ohne die Seite neu zu laden. |
 
 > **GitHub Pages funktioniert nicht.** Es kann nur Dateien anzeigen und kein Backend ausführen. GitHub dient hier nur als Speicherort für den Code. Cloudflare holt sich den Code automatisch von dort.
@@ -91,6 +95,26 @@ Auf GitHub im Repository **Settings** → **Pages** öffnen und die Veröffentli
 
 ### Schritt 9: Testen
 Die Website öffnen und oben rechts auf **Mit Discord anmelden** klicken. Als Admin erscheint danach der rote Menüpunkt **Verwaltung**.
+
+---
+
+## Discord-DM bei Annahme/Ablehnung (Bot einrichten)
+
+Wird ein Antrag angenommen oder abgelehnt, schickt die Website der Person automatisch eine DM. Dafür brauchst du einen **Bot**. Den legst du in **derselben** Discord-Application an. Das Admin-Panel zeigt nach jeder Entscheidung an, ob die DM angekommen ist.
+
+1. **Bot-Token erzeugen:** Im Developer Portal deine App öffnen, dann **Bot** → **Reset Token** klicken und den Token kopieren.
+   ⚠️ Der Bot-Token ist so geheim wie ein Passwort. Er gehört **nie** in eine Datei auf GitHub.
+2. **Bot auf euren Discord-Server holen:** Diesen Link öffnen und euren ANS-Server auswählen:
+   `https://discord.com/oauth2/authorize?client_id=1514230849556578314&scope=bot&permissions=0`
+   Der Bot kann nur Personen anschreiben, die mit ihm auf einem gemeinsamen Server sind.
+3. **Token bei Cloudflare hinterlegen:** **ans-website** → **Settings** → **Variables and Secrets** → **Add** öffnen, als Typ **Secret** wählen, den Namen `DISCORD_BOT_TOKEN` eintragen und als Wert den Token. Danach auf **Deploy** klicken.
+4. **Bot einmalig aktivieren:** Discord verlangt, dass sich ein Bot einmal verbindet, bevor er Nachrichten schreiben darf. Trag dafür in deiner lokalen Datei `.dev.vars` `DISCORD_BOT_TOKEN=dein_token` ein und führe aus:
+   ```
+   npm run bot:aktivieren
+   ```
+   Erscheint „✅ Bot … ist aktiviert“, bist du fertig.
+
+**Wenn keine DM ankommt:** Die betroffene Person muss in den Server-Einstellungen *Direktnachrichten von Servermitgliedern* erlaubt haben. In diesem Fall bleibt der Status trotzdem gespeichert, und das Admin-Panel zeigt den Grund an.
 
 ---
 

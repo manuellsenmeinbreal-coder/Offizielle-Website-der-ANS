@@ -5,3 +5,5 @@
 
 DISCORD_CLIENT_SECRET=
 SESSION_SECRET=
+# Optional: Bot-Token für DMs bei Annahme/Ablehnung (Developer Portal → Bot → Reset Token)
+DISCORD_BOT_TOKEN=

@@ -391,15 +391,88 @@ async function updateApplication(c) {
   const body = await readJson(c.request);
   if (!STATUSES.includes(body?.status)) return error(400, 'Ungültiger Status.');
 
+  const previous = await c.env.DB.prepare('SELECT status FROM applications WHERE id = ?').bind(c.params.id).first();
+  if (!previous) return error(404, 'Antrag nicht gefunden.');
+
   const reopened = body.status === 'offen';
-  const result = await c.env.DB
+  await c.env.DB
     .prepare('UPDATE applications SET status = ?, reviewed_by = ?, reviewed_at = ? WHERE id = ?')
     .bind(body.status, reopened ? null : displayName(c.user), reopened ? null : new Date().toISOString(), c.params.id)
     .run();
-  if (!result.meta.changes) return error(404, 'Antrag nicht gefunden.');
 
-  const row = await c.env.DB.prepare('SELECT * FROM applications WHERE id = ?').bind(c.params.id).first();
-  return json({ application: toApplication(row) });
+  const application = toApplication(
+    await c.env.DB.prepare('SELECT * FROM applications WHERE id = ?').bind(c.params.id).first()
+  );
+
+  // Bei Annahme/Ablehnung die Person per Discord-DM benachrichtigen
+  let dm = null;
+  if (!reopened && previous.status !== body.status) {
+    dm = await sendDecisionDm(c.env, application, c.url.origin);
+  }
+  return json({ application, dm });
+}
+
+// ---------------------------------------------------------------------------
+// Discord-Bot: DM bei Annahme/Ablehnung
+// ---------------------------------------------------------------------------
+
+const escapeMarkdown = (s) => String(s).replace(/[\\*_`~|>]/g, '\\$&');
+
+function decisionMessage(application, origin) {
+  const accepted = application.status === 'angenommen';
+  const name = escapeMarkdown(application.rpName);
+  return {
+    embeds: [{
+      title: accepted ? '✅ Beitrittsantrag angenommen' : 'Beitrittsantrag abgelehnt',
+      description: accepted
+        ? `Hallo **${name}**,\n\nherzlichen Glückwunsch! Ihr Beitrittsantrag bei der **Allianz für Nationale Souveränität (ANS)** wurde angenommen.\n\nWillkommen in der Partei!`
+        : `Hallo **${name}**,\n\nleider wurde Ihr Beitrittsantrag bei der **Allianz für Nationale Souveränität (ANS)** abgelehnt.\n\nSie können jederzeit einen neuen Antrag auf unserer Website stellen.`,
+      url: `${origin}/#beitritt`,
+      color: accepted ? 0xd4a83a : 0xc8102e,
+      fields: [{ name: 'Bearbeitet von', value: escapeMarkdown(application.reviewedBy || 'Bundesvorstand'), inline: true }],
+      footer: { text: 'Allianz für Nationale Souveränität · BwRP' },
+      timestamp: new Date().toISOString(),
+    }],
+    allowed_mentions: { parse: [] },
+  };
+}
+
+async function dmFailure(res) {
+  let body = {};
+  try { body = await res.json(); } catch { /* keine JSON-Antwort */ }
+  console.error('[ANS] Discord-DM fehlgeschlagen:', res.status, JSON.stringify(body));
+  if (body.code === 50007) {
+    return 'Die Person hat DMs von Servermitgliedern deaktiviert oder ist auf keinem gemeinsamen Server mit dem Bot.';
+  }
+  if (res.status === 401) return 'Der Bot-Token ist ungültig. Bitte DISCORD_BOT_TOKEN prüfen.';
+  if (body.code === 40001 || res.status === 403) {
+    return 'Der Bot darf noch keine Nachrichten senden. Bitte einmalig "npm run bot:aktivieren" ausführen (siehe README).';
+  }
+  if (res.status === 429) return 'Discord meldet zu viele Anfragen. Bitte später erneut versuchen.';
+  return `Discord-Fehler ${res.status}.`;
+}
+
+async function sendDecisionDm(env, application, origin) {
+  if (!env.DISCORD_BOT_TOKEN) {
+    return { sent: false, reason: 'Der Discord-Bot ist noch nicht eingerichtet (DISCORD_BOT_TOKEN fehlt).' };
+  }
+  const headers = { Authorization: `Bot ${env.DISCORD_BOT_TOKEN}`, 'Content-Type': 'application/json' };
+  try {
+    const channelRes = await fetch(`${DISCORD_API}/users/@me/channels`, {
+      method: 'POST', headers, body: JSON.stringify({ recipient_id: application.discord.id }),
+    });
+    if (!channelRes.ok) return { sent: false, reason: await dmFailure(channelRes) };
+    const channel = await channelRes.json();
+
+    const messageRes = await fetch(`${DISCORD_API}/channels/${channel.id}/messages`, {
+      method: 'POST', headers, body: JSON.stringify(decisionMessage(application, origin)),
+    });
+    if (!messageRes.ok) return { sent: false, reason: await dmFailure(messageRes) };
+    return { sent: true };
+  } catch (err) {
+    console.error('[ANS] Discord nicht erreichbar:', err.message);
+    return { sent: false, reason: 'Discord ist gerade nicht erreichbar.' };
+  }
 }
 
 async function deleteApplication(c) {

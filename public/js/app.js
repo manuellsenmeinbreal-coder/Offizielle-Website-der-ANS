@@ -78,15 +78,15 @@
 
   const TOAST_MS = 4500;
   let toastTimer;
-  function toast(message, type = '') {
+  function toast(message, type = '', duration = TOAST_MS) {
     const el = $('#toast');
     el.textContent = message;
     el.className = 'toast';
     void el.offsetWidth; // Animation (Zeitbalken) neu starten
     el.className = `toast show ${type}`;
-    el.style.setProperty('--toast-ms', `${TOAST_MS}ms`);
+    el.style.setProperty('--toast-ms', `${duration}ms`);
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), TOAST_MS);
+    toastTimer = setTimeout(() => el.classList.remove('show'), duration);
   }
 
   // --- UX-Feedback-Helfer ----------------------------------------------------
@@ -336,6 +336,26 @@
     if (setUserMenu(false)) $('.user-btn')?.focus();
     closeNav();
   });
+
+  function initThemeToggle() {
+    const btn = $('#themeToggle');
+    const sync = () => {
+      const dark = window.ANS_THEME?.get() === 'dark';
+      btn.setAttribute('aria-pressed', String(dark));
+      btn.setAttribute('aria-label', dark ? 'Helles Design aktivieren' : 'Dunkles Design aktivieren');
+      btn.title = dark ? 'Helles Design' : 'Dunkles Design';
+    };
+    btn.addEventListener('click', () => {
+      const root = document.documentElement;
+      root.classList.add('theme-switching');
+      window.ANS_THEME.set(window.ANS_THEME.get() === 'dark' ? 'light' : 'dark');
+      sync();
+      setTimeout(() => root.classList.remove('theme-switching'), 400);
+    });
+    // Systemeinstellung geändert (ohne eigene Wahl)
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => setTimeout(sync));
+    sync();
+  }
 
   function initToTop() {
     const btn = $('#toTop');
@@ -640,12 +660,14 @@
   async function setStatus(a, status, button) {
     setBusy(button, true);
     try {
-      const { application } = await api(`/api/applications/${encodeURIComponent(a.id)}`, { method: 'PATCH', body: { status } });
+      const { application, dm } = await api(`/api/applications/${encodeURIComponent(a.id)}`, { method: 'PATCH', body: { status } });
       Object.assign(a, application);
       state.justChanged = a.id;
       renderApplications();
       state.justChanged = null;
-      toast(`Antrag von ${a.rpName}: ${status}.`, 'success');
+      if (!dm) toast(`Antrag von ${a.rpName}: ${status}.`, 'success');
+      else if (dm.sent) toast(`Antrag von ${a.rpName}: ${status}. Discord-DM wurde verschickt.`, 'success');
+      else toast(`Status gespeichert, aber keine DM verschickt: ${dm.reason}`, 'error', 9000);
     } catch (err) {
       setBusy(button, false);
       handleAdminError(err);
@@ -801,6 +823,7 @@
     initApplicationTools();
     initEditor();
     initToTop();
+    initThemeToggle();
     renderAuth();
     route();
 
