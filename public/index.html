@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Allianz für Nationale Souveränität (ANS)</title>
+  <meta name="description" content="Offizielle Website der Allianz für Nationale Souveränität (ANS) – Roleplay-Partei im Spiel BwRP.">
+  <meta name="theme-color" content="#003366">
+  <link rel="icon" href="assets/logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/config.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+  <div class="flagline" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <!-- ================= HEADER ================= -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#start" class="brand" aria-label="ANS – zur Startseite">
+        <img src="assets/logo.jpg" alt="" width="44" height="44">
+        <span class="brand-text">
+          <strong>ANS</strong>
+          <small>Allianz für Nationale Souveränität</small>
+        </span>
+      </a>
+
+      <nav class="main-nav" id="mainNav" aria-label="Hauptnavigation">
+        <a href="#start" data-nav="start">Startseite</a>
+        <a href="#programm" data-nav="programm">Parteiprogramm</a>
+        <a href="#team" data-nav="team">Unser Team</a>
+        <a href="#beitritt" data-nav="beitritt">Mitglied werden</a>
+        <a href="#admin" data-nav="admin" class="nav-admin" hidden>Verwaltung</a>
+      </nav>
+
+      <div class="auth" id="auth"></div>
+
+      <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mainNav" aria-label="Menü öffnen">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+
+    <!-- ================= STARTSEITE ================= -->
+    <section class="view" data-view="start" data-title="Startseite">
+      <div class="hero">
+        <div class="container hero-inner">
+          <div class="hero-copy">
+            <p class="eyebrow eyebrow-light">Offizielle Website · BwRP</p>
+            <h1>Souverän.<br>Verlässlich.<br><span class="text-gold">Entschlossen.</span></h1>
+            <p class="lead">Die Allianz für Nationale Souveränität steht für einen handlungsfähigen Staat, Sicherheit für alle Bürger, eine starke Wirtschaft und eine Politik, die Verantwortung übernimmt.</p>
+            <div class="hero-actions">
+              <a class="btn btn-gold" href="#beitritt">Jetzt Mitglied werden</a>
+              <a class="btn btn-ghost-light" href="#programm">Zum Parteiprogramm</a>
+            </div>
+          </div>
+          <div class="hero-emblem">
+            <img src="assets/logo.jpg" alt="Logo der Allianz für Nationale Souveränität" width="360" height="360">
+          </div>
+        </div>
+        <svg class="hero-swoosh" viewBox="0 0 1440 220" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 220 C 420 200, 900 140, 1440 20 L1440 70 C 900 180, 420 220, 0 220 Z" fill="#c8102e"/>
+          <path d="M0 200 C 420 175, 900 110, 1440 0 L1440 24 C 900 140, 420 200, 0 220 Z" fill="#d4a83a"/>
+        </svg>
+      </div>
+
+      <div class="section">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow">Unsere Leitlinien</p>
+            <h2>Wofür die ANS steht</h2>
+            <p class="section-lead">Vier Grundsätze bestimmen unsere Arbeit im Bundestag und in der Regierung.</p>
+          </div>
+          <div class="pillars">
+            <article class="pillar">
+              <span class="pillar-num">01</span>
+              <h3>Souveränität &amp; Sicherheit</h3>
+              <p>Ein Staat, der schützt: starke Polizei, einsatzbereite Bundeswehr und ein konsequenter Rechtsstaat.</p>
+            </article>
+            <article class="pillar">
+              <span class="pillar-num">02</span>
+              <h3>Wirtschaft &amp; Mittelstand</h3>
+              <p>Weniger Bürokratie, faire Abgaben und verlässliche Rahmenbedingungen für alle, die anpacken.</p>
+            </article>
+            <article class="pillar">
+              <span class="pillar-num">03</span>
+              <h3>Moderner Staat</h3>
+              <p>Digitale, schlanke Verwaltung und ein verantwortungsvoller Umgang mit Steuergeldern.</p>
+            </article>
+            <article class="pillar">
+              <span class="pillar-num">04</span>
+              <h3>Zusammenhalt &amp; Heimat</h3>
+              <p>Ehrenamt, starke Kommunen und Respekt als Fundament unseres Miteinanders.</p>
+            </article>
+          </div>
+          <div class="center">
+            <a class="btn btn-primary" href="#programm">Vollständiges Programm lesen</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="section section-alt">
+        <div class="container split">
+          <figure class="split-media">
+            <img src="assets/vorstand.png" alt="Der Parteivorstand der ANS vor der Ravensberger Bank" width="1920" height="1080" loading="lazy">
+          </figure>
+          <div class="split-copy">
+            <p class="eyebrow">Parteiführung</p>
+            <h2>Führung mit klarer Haltung</h2>
+            <p>Die ANS wird von <strong>ManuellsenMeinBreAl1</strong> als Vorsitzendem und <strong>NXR_VEX23</strong> als stellvertretendem Vorsitzenden geführt. Beide vertreten die Partei im Bundestag.</p>
+            <a class="btn btn-outline" href="#team">Das Team kennenlernen</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-band">
+        <div class="container cta-inner">
+          <div>
+            <h2>Gestalten Sie mit.</h2>
+            <p>Werden Sie Teil der ANS und bringen Sie Ihre Ideen in die Politik ein.</p>
+          </div>
+          <a class="btn btn-gold" href="#beitritt">Beitrittsantrag stellen</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PARTEIPROGRAMM ================= -->
+    <section class="view" data-view="programm" data-title="Parteiprogramm" hidden>
+      <header class="page-head">
+        <div class="container">
+          <p class="eyebrow eyebrow-light">Grundsatzprogramm</p>
+          <h1>Parteiprogramm der ANS</h1>
+          <p class="page-meta">
+            <span class="live-dot" id="liveDot" title="Live-Verbindung"></span>
+            <span id="programMeta">Wird geladen …</span>
+          </p>
+        </div>
+      </header>
+      <div class="section">
+        <div class="container narrow">
+          <article class="doc program" id="programDoc" aria-live="polite">
+            <p class="muted">Das Parteiprogramm wird geladen …</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TEAM ================= -->
+    <section class="view" data-view="team" data-title="Unser Team" hidden>
+      <header class="page-head">
+        <div class="container">
+          <p class="eyebrow eyebrow-light">Bundesvorstand</p>
+          <h1>Unser Team</h1>
+          <p class="page-meta">Die Parteiführung der Allianz für Nationale Souveränität</p>
+        </div>
+      </header>
+      <div class="section">
+        <div class="container">
+          <div class="team-grid">
+            <article class="member">
+              <div class="portrait portrait-chair" role="img" aria-label="Spielfigur von ManuellsenMeinBreAl1"></div>
+              <div class="member-body">
+                <span class="badge badge-gold">Parteivorsitzender</span>
+                <h2>ManuellsenMeinBreAl1</h2>
+                <p class="member-role">Vorsitz ANS · Mitglied des Bundestages</p>
+                <p>Als Vorsitzender verantwortet er die politische Gesamtstrategie der ANS, führt den Bundesvorstand und vertritt die Partei nach außen.</p>
+              </div>
+            </article>
+            <article class="member">
+              <div class="portrait portrait-deputy" role="img" aria-label="Spielfigur von NXR_VEX23"></div>
+              <div class="member-body">
+                <span class="badge badge-red">Stellv. Vorsitzender</span>
+                <h2>NXR_VEX23</h2>
+                <p class="member-role">Stellv. Vorsitz ANS · Mitglied des Bundestages</p>
+                <p>Als stellvertretender Vorsitzender koordiniert er die Parteiarbeit, betreut die Mitglieder und vertritt den Vorsitzenden.</p>
+              </div>
+            </article>
+          </div>
+
+          <figure class="group-photo">
+            <img src="assets/vorstand.png" alt="NXR_VEX23 und ManuellsenMeinBreAl1 vor der Ravensberger Bank" width="1920" height="1080" loading="lazy">
+            <figcaption>Der Bundesvorstand der ANS vor der Ravensberger Bank.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= BEITRITT ================= -->
+    <section class="view" data-view="beitritt" data-title="Mitglied werden" hidden>
+      <header class="page-head">
+        <div class="container">
+          <p class="eyebrow eyebrow-light">Mitgliedschaft</p>
+          <h1>Beitrittsantrag</h1>
+          <p class="page-meta">Werden Sie Mitglied der Allianz für Nationale Souveränität</p>
+        </div>
+      </header>
+      <div class="section">
+        <div class="container join-grid">
+          <aside class="join-info">
+            <h2>So läuft Ihr Beitritt ab</h2>
+            <ol class="steps">
+              <li><strong>Mit Discord anmelden</strong><span>Ihr Antrag wird Ihrem Discord-Konto zugeordnet.</span></li>
+              <li><strong>Antrag ausfüllen</strong><span>Angaben zu Ihrer Person im Spiel und Ihrer Motivation.</span></li>
+              <li><strong>Prüfung durch den Vorstand</strong><span>Der Bundesvorstand prüft jeden Antrag persönlich.</span></li>
+              <li><strong>Rückmeldung</strong><span>Sie erhalten eine Nachricht über Discord. Den Status sehen Sie auch hier.</span></li>
+            </ol>
+          </aside>
+
+          <div class="card join-card">
+            <!-- Nicht angemeldet -->
+            <div id="joinLogin" class="join-state" hidden>
+              <h2>Anmeldung erforderlich</h2>
+              <p>Um einen Beitrittsantrag zu stellen, melden Sie sich bitte mit Ihrem Discord-Konto an.</p>
+              <a class="btn btn-discord js-login" href="/auth/discord">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-discord"/></svg>
+                Mit Discord anmelden
+              </a>
+            </div>
+
+            <!-- Status eines vorhandenen Antrags -->
+            <div id="joinStatus" class="join-state" hidden></div>
+
+            <!-- Formular -->
+            <form id="joinForm" class="form" novalidate hidden>
+              <h2>Ihre Angaben</h2>
+              <div class="field">
+                <label for="fDiscord">Discord-Konto</label>
+                <input id="fDiscord" type="text" readonly>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="fRoblox">Roblox-Benutzername <abbr title="Pflichtfeld">*</abbr></label>
+                  <input id="fRoblox" name="robloxName" type="text" required minlength="3" maxlength="40" autocomplete="off">
+                </div>
+                <div class="field">
+                  <label for="fRpName">Name im Roleplay <abbr title="Pflichtfeld">*</abbr></label>
+                  <input id="fRpName" name="rpName" type="text" required minlength="3" maxlength="60" placeholder="Vor- und Nachname" autocomplete="off">
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="fActivity">Aktivität pro Woche <abbr title="Pflichtfeld">*</abbr></label>
+                  <select id="fActivity" name="activity" required>
+                    <option value="">Bitte wählen …</option>
+                    <option>Weniger als 3 Stunden</option>
+                    <option>3–7 Stunden</option>
+                    <option>7–15 Stunden</option>
+                    <option>Mehr als 15 Stunden</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="fEngagement">Gewünschtes Engagement <abbr title="Pflichtfeld">*</abbr></label>
+                  <select id="fEngagement" name="engagement" required>
+                    <option value="">Bitte wählen …</option>
+                    <option>Einfaches Mitglied</option>
+                    <option>Kandidatur / Mandat</option>
+                    <option>Öffentlichkeitsarbeit &amp; Medien</option>
+                    <option>Organisation &amp; Verwaltung</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label for="fExperience">Bisherige politische Erfahrung in BwRP</label>
+                <textarea id="fExperience" name="experience" rows="3" maxlength="2000" placeholder="Frühere Parteien, Ämter, Mandate … (optional)"></textarea>
+              </div>
+              <div class="field">
+                <label for="fMotivation">Warum möchten Sie der ANS beitreten? <abbr title="Pflichtfeld">*</abbr></label>
+                <textarea id="fMotivation" name="motivation" rows="5" required minlength="30" maxlength="2000"></textarea>
+                <small class="hint"><span id="motivationCount">0</span> / mind. 30 Zeichen</small>
+              </div>
+              <label class="check">
+                <input type="checkbox" name="accepted" required>
+                <span>Ich bestätige, dass meine Angaben wahrheitsgemäß sind und ich die Regeln von BwRP einhalte.</span>
+              </label>
+              <p class="form-error" id="joinError" role="alert" hidden></p>
+              <button class="btn btn-primary btn-block" type="submit">Antrag verbindlich absenden</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ADMIN ================= -->
+    <section class="view" data-view="admin" data-title="Verwaltung" hidden>
+      <header class="page-head page-head-admin">
+        <div class="container">
+          <p class="eyebrow eyebrow-light">Interner Bereich</p>
+          <h1>Verwaltung</h1>
+          <p class="page-meta">Nur für autorisierte Mitglieder des Bundesvorstands</p>
+        </div>
+      </header>
+      <div class="section">
+        <div class="container">
+          <div class="tabs" role="tablist" aria-label="Verwaltungsbereiche">
+            <button class="tab" role="tab" id="tabApps" aria-controls="panelApps" aria-selected="true" type="button">
+              Beitrittsanträge <span class="count" id="openCount">0</span>
+            </button>
+            <button class="tab" role="tab" id="tabProgram" aria-controls="panelProgram" aria-selected="false" tabindex="-1" type="button">
+              Parteiprogramm bearbeiten
+            </button>
+          </div>
+
+          <!-- Anträge -->
+          <div class="tab-panel" id="panelApps" role="tabpanel" aria-labelledby="tabApps">
+            <div class="toolbar">
+              <div class="segmented" id="appFilter" role="group" aria-label="Nach Status filtern">
+                <button type="button" data-filter="alle" aria-pressed="true">Alle</button>
+                <button type="button" data-filter="offen" aria-pressed="false">Offen</button>
+                <button type="button" data-filter="angenommen" aria-pressed="false">Angenommen</button>
+                <button type="button" data-filter="abgelehnt" aria-pressed="false">Abgelehnt</button>
+              </div>
+              <button class="btn btn-outline btn-sm" id="reloadApps" type="button">Aktualisieren</button>
+            </div>
+            <div id="appList" class="app-list"></div>
+          </div>
+
+          <!-- Programm-Editor -->
+          <div class="tab-panel" id="panelProgram" role="tabpanel" aria-labelledby="tabProgram" hidden>
+            <div class="toolbar">
+              <p class="editor-status" id="editorStatus">Keine ungespeicherten Änderungen</p>
+              <div class="toolbar-actions">
+                <button class="btn btn-outline btn-sm" id="revertProgram" type="button" disabled>Verwerfen</button>
+                <button class="btn btn-primary btn-sm" id="saveProgram" type="button" disabled>Speichern &amp; veröffentlichen</button>
+              </div>
+            </div>
+            <div class="editor-grid">
+              <div class="editor-col">
+                <label for="programEditor" class="editor-label">Text</label>
+                <textarea id="programEditor" spellcheck="true"></textarea>
+                <details class="help">
+                  <summary>Formatierungshilfe</summary>
+                  <ul>
+                    <li><code># Überschrift</code> – Kapitel (wird automatisch mit § nummeriert)</li>
+                    <li><code>## Unterüberschrift</code> – Abschnitt</li>
+                    <li><code>- Punkt</code> – Aufzählung &nbsp;·&nbsp; <code>1. Punkt</code> – nummerierte Liste</li>
+                    <li><code>**fett**</code> &nbsp;·&nbsp; <code>*kursiv*</code> &nbsp;·&nbsp; <code>&gt; Zitat</code> &nbsp;·&nbsp; <code>---</code> Trennlinie</li>
+                    <li>Leerzeile = neuer Absatz &nbsp;·&nbsp; <kbd>Strg</kbd> + <kbd>S</kbd> = Speichern</li>
+                  </ul>
+                </details>
+              </div>
+              <div class="editor-col">
+                <p class="editor-label">Vorschau</p>
+                <div class="doc program preview" id="programPreview"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <img src="assets/logo.jpg" alt="" width="56" height="56" loading="lazy">
+        <div>
+          <strong>Allianz für Nationale Souveränität</strong>
+          <p>Souverän. Verlässlich. Entschlossen.</p>
+        </div>
+      </div>
+      <nav class="footer-nav" aria-label="Fußzeilennavigation">
+        <h2>Navigation</h2>
+        <a href="#start">Startseite</a>
+        <a href="#programm">Parteiprogramm</a>
+        <a href="#team">Unser Team</a>
+        <a href="#beitritt">Mitglied werden</a>
+      </nav>
+      <div class="footer-links">
+        <h2>Community</h2>
+        <a class="btn-footer" id="linkDiscord" href="#" target="_blank" rel="noopener noreferrer">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-discord"/></svg>
+          Discord der ANS
+        </a>
+        <a class="btn-footer" id="linkCommunity" href="#" target="_blank" rel="noopener noreferrer">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-people"/></svg>
+          BwRP Community
+        </a>
+        <a class="btn-footer btn-footer-gold" id="linkGame" href="#" target="_blank" rel="noopener noreferrer">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-play"/></svg>
+          Direkt zum Spiel
+        </a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>© <span id="year"></span> Allianz für Nationale Souveränität (ANS)</p>
+      <p>Fiktive Partei im Rahmen des Roleplay-Projekts BwRP. Kein Bezug zu realen Parteien oder Organisationen.</p>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- Icons -->
+  <svg width="0" height="0" class="sr-only" aria-hidden="true">
+    <symbol id="i-discord" viewBox="0 0 24 24"><path fill="currentColor" d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .078-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></symbol>
+    <symbol id="i-people" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm13 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.14v13.72a1 1 0 0 0 1.52.85l10.9-6.86a1 1 0 0 0 0-1.7L9.52 4.29A1 1 0 0 0 8 5.14z"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></symbol>
+  </svg>
+</body>
+</html>

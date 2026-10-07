@@ -1,0 +1,19 @@
+{
+  "name": "ans-website",
+  "version": "1.0.0",
+  "description": "Offizielle Website der Allianz für Nationale Souveränität (ANS) – BwRP",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1"
+  }
+}
