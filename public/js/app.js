@@ -13,6 +13,7 @@
     program: null,
     applications: [],
     appFilter: 'alle',
+    justChanged: null,
     editorDirty: false,
     remoteChanged: false,
     lastOwnSave: null,
@@ -75,15 +76,54 @@
   const dateFmt = new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' });
   const fmtDate = (iso) => (iso ? `${dateFmt.format(new Date(iso))} Uhr` : '–');
 
+  const TOAST_MS = 4500;
   let toastTimer;
   function toast(message, type = '') {
     const el = $('#toast');
     el.textContent = message;
-    el.className = `toast ${type}`;
-    el.hidden = false;
+    el.className = 'toast';
+    void el.offsetWidth; // Animation (Zeitbalken) neu starten
+    el.className = `toast show ${type}`;
+    el.style.setProperty('--toast-ms', `${TOAST_MS}ms`);
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { el.hidden = true; }, 4500);
+    toastTimer = setTimeout(() => el.classList.remove('show'), TOAST_MS);
   }
+
+  // --- UX-Feedback-Helfer ----------------------------------------------------
+
+  /** Startet eine CSS-Animation erneut, auch wenn die Klasse schon gesetzt war. */
+  function replay(el, cls) {
+    if (!el) return;
+    el.classList.remove(cls);
+    void el.offsetWidth;
+    el.classList.add(cls);
+    el.addEventListener('animationend', () => el.classList.remove(cls), { once: true });
+  }
+
+  /** Lade-Kreisel im Button anzeigen bzw. entfernen. */
+  function setBusy(btn, busy) {
+    if (!btn) return;
+    btn.classList.toggle('is-loading', busy);
+    btn.disabled = busy;
+    btn.setAttribute('aria-busy', String(busy));
+  }
+
+  /** Button kurz grün mit Erfolgsmeldung anzeigen. */
+  function flashSuccess(btn, label = 'Gespeichert ✓') {
+    if (!btn) return;
+    btn.dataset.label ??= btn.textContent; // Originaltext nur beim ersten Mal merken
+    clearTimeout(btn._successTimer);
+    btn.classList.add('is-success');
+    btn.textContent = label;
+    btn._successTimer = setTimeout(() => {
+      btn.classList.remove('is-success');
+      btn.textContent = btn.dataset.label;
+      delete btn.dataset.label;
+    }, 1600);
+  }
+
+  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function storage(action, key, value) {
     try {
@@ -168,6 +208,7 @@
     state.view = view;
 
     for (const section of $$('.view')) section.hidden = section.dataset.view !== view;
+    if (changed) replay($(`.view[data-view="${view}"]`), 'view-enter');
     for (const link of $$('[data-nav]')) {
       if (link.dataset.nav === view) link.setAttribute('aria-current', 'page');
       else link.removeAttribute('aria-current');
@@ -231,7 +272,7 @@
       return;
     }
 
-    const menu = h('div', { class: 'user-menu', id: 'userMenu', role: 'menu', hidden: true },
+    const menu = h('div', { class: 'user-menu', id: 'userMenu', role: 'menu' },
       h('div', { class: 'user-menu-head' },
         'Angemeldet als',
         h('strong', {}, state.user.displayName),
@@ -245,35 +286,69 @@
       class: 'user-btn', type: 'button', 'aria-haspopup': 'true', 'aria-expanded': 'false', 'aria-controls': 'userMenu',
       onclick: (e) => {
         e.stopPropagation();
-        const open = menu.hidden;
-        menu.hidden = !open;
-        button.setAttribute('aria-expanded', String(open));
+        setUserMenu(!menu.classList.contains('open'));
       },
     },
     h('img', { src: state.user.avatarUrl, alt: '', width: 32, height: 32 }),
     h('span', { class: 'user-name' }, state.user.displayName),
     icon('chevron'));
 
-    menu.addEventListener('click', () => { menu.hidden = true; button.setAttribute('aria-expanded', 'false'); });
+    menu.addEventListener('click', () => setUserMenu(false));
     el.append(button, menu);
   }
 
-  document.addEventListener('click', (e) => {
+  function setUserMenu(open) {
     const menu = $('#userMenu');
-    if (menu && !menu.hidden && !e.target.closest('.auth')) {
-      menu.hidden = true;
-      $('.user-btn')?.setAttribute('aria-expanded', 'false');
+    if (!menu) return false;
+    const wasOpen = menu.classList.contains('open');
+    menu.classList.toggle('open', open);
+    $('.user-btn')?.setAttribute('aria-expanded', String(open));
+    return wasOpen;
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.auth')) setUserMenu(false);
+
+    // Login: Lade-Kreisel, bis Discord sich öffnet; Rücksprungziel merken
+    const login = e.target.closest('.js-login');
+    if (login) {
+      storage('set', RETURN_KEY, location.hash || '#start');
+      login.classList.add('is-loading');
     }
-    // Vor dem Login merken, wohin der Nutzer zurück soll
-    if (e.target.closest('.js-login')) storage('set', RETURN_KEY, location.hash || '#start');
+
+    // "Nach oben" und "Zum Inhalt springen" dürfen den Hash-Router nicht auslösen
+    const toTop = e.target.closest('[data-to-top]');
+    if (toTop) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' });
+    }
+    if (e.target.closest('.skip-link')) {
+      e.preventDefault();
+      $('#main').focus();
+    }
   });
+
+  // Zurück-Taste nach dem Discord-Login: Lade-Zustand zurücksetzen
+  window.addEventListener('pageshow', () => $$('.js-login.is-loading').forEach((b) => b.classList.remove('is-loading')));
 
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    const menu = $('#userMenu');
-    if (menu && !menu.hidden) { menu.hidden = true; $('.user-btn')?.focus(); }
+    if (setUserMenu(false)) $('.user-btn')?.focus();
     closeNav();
   });
+
+  function initToTop() {
+    const btn = $('#toTop');
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        btn.classList.toggle('show', window.scrollY > 600);
+        ticking = false;
+      });
+    }, { passive: true });
+  }
 
   async function logout() {
     try {
@@ -308,12 +383,9 @@
     if (!state.program) return;
     const doc = $('#programDoc');
     doc.innerHTML = renderMarkdown(state.program.content);
+    doc.setAttribute('aria-busy', 'false');
     $('#programMeta').textContent = `Stand: ${fmtDate(state.program.updatedAt)} · zuletzt bearbeitet von ${state.program.updatedBy}`;
-    if (flash) {
-      doc.classList.remove('program-flash');
-      void doc.offsetWidth;
-      doc.classList.add('program-flash');
-    }
+    if (flash) replay(doc, 'program-flash');
   }
 
   function applyProgram(program) {
@@ -406,8 +478,14 @@
     const motivation = $('#fMotivation');
     const errorBox = $('#joinError');
 
-    motivation.addEventListener('input', () => { $('#motivationCount').textContent = motivation.value.trim().length; });
+    const updateCount = () => {
+      const length = motivation.value.trim().length;
+      $('#motivationCount').textContent = length;
+      $('#motivationCount').parentElement.classList.toggle('ok', length >= 30);
+    };
+    motivation.addEventListener('input', updateCount);
     form.addEventListener('input', (e) => e.target.classList?.remove('invalid'));
+    form.addEventListener('change', (e) => e.target.classList?.remove('invalid'));
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -419,6 +497,7 @@
       if (invalid.length) {
         errorBox.textContent = 'Bitte füllen Sie alle markierten Pflichtfelder korrekt aus.';
         errorBox.hidden = false;
+        invalid.forEach((f) => replay(f.closest('.field') || f.closest('.check'), 'shake'));
         invalid[0].focus();
         return;
       }
@@ -435,20 +514,21 @@
       };
 
       const submit = $('button[type="submit"]', form);
-      submit.disabled = true;
+      setBusy(submit, true);
       try {
         await api('/api/applications', { method: 'POST', body });
         form.reset();
-        $('#motivationCount').textContent = '0';
+        updateCount();
         toast('Ihr Beitrittsantrag wurde erfolgreich übermittelt.', 'success');
         await renderJoin();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' });
       } catch (err) {
         if (err.status === 401) { await loadMe(); renderJoin(); }
         errorBox.textContent = err.message;
         errorBox.hidden = false;
+        replay(submit, 'shake');
       } finally {
-        submit.disabled = false;
+        setBusy(submit, false);
       }
     });
   }
@@ -484,6 +564,10 @@
 
   async function loadApplications() {
     if (!state.isAdmin) return;
+    if (!state.applications.length) {
+      $('#appList').replaceChildren(h('div', { class: 'skeleton', 'aria-label': 'Anträge werden geladen …' },
+        h('span', { class: 'sk sk-card' }), h('span', { class: 'sk sk-card' })));
+    }
     try {
       ({ applications: state.applications } = await api('/api/applications'));
       renderApplications();
@@ -504,6 +588,7 @@
   function renderApplications() {
     const open = state.applications.filter((a) => a.status === 'offen').length;
     const count = $('#openCount');
+    if (count.textContent !== String(open)) replay(count, 'pop');
     count.textContent = open;
     count.classList.toggle('zero', open === 0);
 
@@ -522,14 +607,17 @@
 
   function applicationCard(a) {
     const action = (label, cls, status) =>
-      a.status !== status && h('button', { type: 'button', class: `btn btn-sm ${cls}`, onclick: () => setStatus(a, status) }, label);
+      a.status !== status && h('button', {
+        type: 'button', class: `btn btn-sm ${cls}`, onclick: (e) => setStatus(a, status, e.currentTarget),
+      }, label);
+    const justChanged = a.id === state.justChanged;
 
-    return h('article', { class: 'app', 'data-status': a.status },
+    return h('article', { class: 'app', 'data-status': a.status, 'data-id': a.id },
       h('div', { class: 'app-head' },
         h('div', {},
           h('h3', {}, a.rpName),
           h('span', { class: 'sub' }, `Eingereicht am ${fmtDate(a.createdAt)}`)),
-        h('span', { class: `pill pill-${a.status}` }, a.status)),
+        h('span', { class: `pill pill-${a.status}${justChanged ? ' pop' : ''}` }, a.status)),
       h('dl', { class: 'app-meta' },
         h('div', {}, h('dt', {}, 'Discord'), h('dd', {}, `${a.discord.displayName} (@${a.discord.username})`)),
         h('div', {}, h('dt', {}, 'Discord-ID'), h('dd', {}, a.discord.id)),
@@ -544,28 +632,39 @@
           action('Annehmen', 'btn-primary', 'angenommen'),
           action('Ablehnen', 'btn-red', 'abgelehnt'),
           action('Wieder öffnen', 'btn-outline', 'offen'),
-          h('button', { type: 'button', class: 'btn btn-sm btn-danger-text', onclick: () => removeApplication(a) }, 'Löschen'))));
+          h('button', {
+            type: 'button', class: 'btn btn-sm btn-danger-text', onclick: (e) => removeApplication(a, e.currentTarget),
+          }, 'Löschen'))));
   }
 
-  async function setStatus(a, status) {
+  async function setStatus(a, status, button) {
+    setBusy(button, true);
     try {
       const { application } = await api(`/api/applications/${encodeURIComponent(a.id)}`, { method: 'PATCH', body: { status } });
       Object.assign(a, application);
+      state.justChanged = a.id;
       renderApplications();
+      state.justChanged = null;
       toast(`Antrag von ${a.rpName}: ${status}.`, 'success');
     } catch (err) {
+      setBusy(button, false);
       handleAdminError(err);
     }
   }
 
-  async function removeApplication(a) {
+  async function removeApplication(a, button) {
     if (!confirm(`Antrag von „${a.rpName}“ endgültig löschen?`)) return;
+    setBusy(button, true);
     try {
       await api(`/api/applications/${encodeURIComponent(a.id)}`, { method: 'DELETE' });
+      const card = button.closest('.app');
+      card.classList.add('leaving');
+      if (!reducedMotion()) await wait(250);
       state.applications = state.applications.filter((x) => x.id !== a.id);
       renderApplications();
       toast('Antrag gelöscht.');
     } catch (err) {
+      setBusy(button, false);
       handleAdminError(err);
     }
   }
@@ -578,9 +677,12 @@
       $$('#appFilter button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
       renderApplications();
     });
-    $('#reloadApps').addEventListener('click', async () => {
+    $('#reloadApps').addEventListener('click', async (e) => {
+      const button = e.currentTarget;
+      setBusy(button, true);
       await loadApplications();
-      toast('Anträge aktualisiert.');
+      setBusy(button, false);
+      flashSuccess(button, 'Aktualisiert ✓');
     });
   }
 
@@ -623,7 +725,7 @@
   async function saveProgram(force = false) {
     if (!state.editorDirty) return;
     const button = $('#saveProgram');
-    button.disabled = true;
+    setBusy(button, true);
     try {
       const program = await api('/api/program', {
         method: 'PUT',
@@ -632,9 +734,13 @@
       state.lastOwnSave = program.updatedAt;
       state.editorDirty = false;
       state.remoteChanged = false;
+      setBusy(button, false);
       applyProgram(program);
+      flashSuccess(button, 'Veröffentlicht ✓');
       toast('Parteiprogramm gespeichert und live veröffentlicht.', 'success');
     } catch (err) {
+      setBusy(button, false);
+      replay(button, 'shake');
       if (err.status === 409) {
         state.program = err.data.program;
         renderProgram();
@@ -680,7 +786,7 @@
 
   function initFooter() {
     const links = CFG.links || {};
-    const map = { linkDiscord: links.discord, linkCommunity: links.community, linkGame: links.game };
+    const map = { linkDiscord: links.discord, linkDiscordCta: links.discord, linkCommunity: links.community, linkGame: links.game };
     for (const [id, url] of Object.entries(map)) {
       if (url) $(`#${id}`).href = url;
     }
@@ -694,6 +800,7 @@
     initTabs();
     initApplicationTools();
     initEditor();
+    initToTop();
     renderAuth();
     route();
 

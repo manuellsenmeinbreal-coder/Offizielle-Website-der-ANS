@@ -9,7 +9,7 @@
   <link rel="icon" href="assets/logo.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="css/style.css">
   <script src="js/config.js" defer></script>
   <script src="js/app.js" defer></script>
@@ -70,11 +70,31 @@
         </svg>
       </div>
 
+      <!-- Aktions-Kacheln -->
+      <div class="container">
+        <nav class="action-row" aria-label="Schnellzugriff">
+          <a class="action action-gold" href="#beitritt">
+            <span class="action-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-user-plus"/></svg></span>
+            <span class="action-text"><strong>Mitglied werden!</strong><small>Beitrittsantrag in 2 Minuten</small></span>
+            <svg class="icon action-arrow" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+          </a>
+          <a class="action action-navy" href="#programm">
+            <span class="action-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-doc"/></svg></span>
+            <span class="action-text"><strong>Programm lesen!</strong><small>Unsere Positionen im Überblick</small></span>
+            <svg class="icon action-arrow" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+          </a>
+          <a class="action action-red" id="linkDiscordCta" href="#" target="_blank" rel="noopener noreferrer">
+            <span class="action-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-discord"/></svg></span>
+            <span class="action-text"><strong>Discord beitreten!</strong><small>Direkt mit der Partei sprechen</small></span>
+            <svg class="icon action-arrow" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+          </a>
+        </nav>
+      </div>
+
       <div class="section">
         <div class="container">
           <div class="section-head">
-            <p class="eyebrow">Unsere Leitlinien</p>
-            <h2>Wofür die ANS steht</h2>
+            <h2 class="rule-heading">Unsere Leitlinien</h2>
             <p class="section-lead">Vier Grundsätze bestimmen unsere Arbeit im Bundestag und in der Regierung.</p>
           </div>
           <div class="pillars">
@@ -106,23 +126,25 @@
       </div>
 
       <div class="section section-alt">
+        <div class="container">
+          <h2 class="rule-heading">Parteiführung</h2>
+        </div>
         <div class="container split">
           <figure class="split-media">
             <img src="assets/vorstand.png" alt="Der Parteivorstand der ANS vor der Ravensberger Bank" width="1920" height="1080" loading="lazy">
           </figure>
           <div class="split-copy">
-            <p class="eyebrow">Parteiführung</p>
-            <h2>Führung mit klarer Haltung</h2>
+            <h3>Führung mit klarer Haltung</h3>
             <p>Die ANS wird von <strong>ManuellsenMeinBreAl1</strong> als Vorsitzendem und <strong>NXR_VEX23</strong> als stellvertretendem Vorsitzenden geführt. Beide vertreten die Partei im Bundestag.</p>
             <a class="btn btn-outline" href="#team">Das Team kennenlernen</a>
           </div>
         </div>
       </div>
 
-      <div class="cta-band">
+      <div class="tagline-band">
         <div class="container cta-inner">
           <div>
-            <h2>Gestalten Sie mit.</h2>
+            <p class="tagline">Gestalten Sie <span class="text-gold">mit!</span></p>
             <p>Werden Sie Teil der ANS und bringen Sie Ihre Ideen in die Politik ein.</p>
           </div>
           <a class="btn btn-gold" href="#beitritt">Beitrittsantrag stellen</a>
@@ -144,8 +166,12 @@
       </header>
       <div class="section">
         <div class="container narrow">
-          <article class="doc program" id="programDoc" aria-live="polite">
-            <p class="muted">Das Parteiprogramm wird geladen …</p>
+          <article class="doc program" id="programDoc" aria-live="polite" aria-busy="true">
+            <div class="skeleton" aria-label="Das Parteiprogramm wird geladen …">
+              <span class="sk sk-line"></span><span class="sk sk-line"></span><span class="sk sk-line sk-short"></span>
+              <span class="sk sk-title"></span>
+              <span class="sk sk-line"></span><span class="sk sk-line"></span><span class="sk sk-line sk-short"></span>
+            </div>
           </article>
         </div>
       </div>
@@ -357,6 +383,9 @@
 
   <!-- ================= FOOTER ================= -->
   <footer class="site-footer">
+    <div class="container">
+      <p class="footer-tagline">Souverän. Verlässlich. <span class="text-gold">Entschlossen.</span></p>
+    </div>
     <div class="container footer-grid">
       <div class="footer-brand">
         <img src="assets/logo.jpg" alt="" width="56" height="56" loading="lazy">
@@ -389,12 +418,16 @@
       </div>
     </div>
     <div class="container footer-bottom">
-      <p>© <span id="year"></span> Allianz für Nationale Souveränität (ANS)</p>
-      <p>Fiktive Partei im Rahmen des Roleplay-Projekts BwRP. Kein Bezug zu realen Parteien oder Organisationen.</p>
+      <p>© <span id="year"></span> Allianz für Nationale Souveränität (ANS) <span class="sep" aria-hidden="true">|</span> Fiktive Partei im Rahmen des Roleplay-Projekts BwRP. Kein Bezug zu realen Parteien oder Organisationen.</p>
+      <a class="to-top-link" href="#main" data-to-top>Nach oben ↑</a>
     </div>
   </footer>
 
-  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <button class="to-top" id="toTop" type="button" aria-label="Nach oben" data-to-top>
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow-up"/></svg>
+  </button>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <!-- Icons -->
   <svg width="0" height="0" class="sr-only" aria-hidden="true">
@@ -402,6 +435,10 @@
     <symbol id="i-people" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm13 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.14v13.72a1 1 0 0 0 1.52.85l10.9-6.86a1 1 0 0 0 0-1.7L9.52 4.29A1 1 0 0 0 8 5.14z"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-arrow-up" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M12 19V5m-6 6 6-6 6 6"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h6"/></symbol>
+    <symbol id="i-user-plus" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM19 8v6m3-3h-6"/></symbol>
   </svg>
 </body>
 </html>
